@@ -108,7 +108,10 @@
     let pc = createPeerJoiner(event.from);
     await pc.setRemoteDescription(new RTCSessionDescription(event.offer));
     await pc.setLocalDescription(await pc.createAnswer());
-    signaling.emit("answer",  pc.localDescription);
+    signaling.emit("answer",  {
+      to : event.from,
+      answer : pc.localDescription
+    });
 
     peers[event.from] = pc;
 

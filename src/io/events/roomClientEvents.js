@@ -19,11 +19,11 @@ module.exports =  (io, socket) =>{
             offer: offer
         });
     });
-    socket.on('answer', (answer) => {
+    socket.on('answer', (event) => {
         console.log("answer received from ===> ", socket.id);
-        socket.broadcast.to(room).emit('answer', {
+        socket.in(room).to(event.to).emit('answer', {
             from : socket.id,
-            answer: answer
+            answer: event.answer
         });
     })
     socket.on("disconnect", () => {

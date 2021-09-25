@@ -7,25 +7,26 @@ module.exports =  (io, socket) =>{
     });
     socket.on("candidate", (event) => {
         console.log("candidate received from ===> ", socket.id);
-        socket.in(room).to(event.to).emit("candidate", {
+        socket.to(event.to).emit("candidate", {
             from: socket.id,
-            candidate:candidate.candidate
+            candidate:event.candidate
         });
     });
     socket.on("offer", (event) => {
         console.log("offer received from ===> ", socket.id);
-        socket.in(room).to(event.to).emit("offer", {
+        socket.to(event.to).emit("offer", {
             from: socket.id,
             offer: event.offer
         });
     });
     socket.on('answer', (event) => {
         console.log("answer received from ===> ", socket.id);
-        socket.in(room).to(event.to).emit('answer', {
+        socket.to(event.to).emit('answer', {
             from : socket.id,
             answer: event.answer
         });
     })
+
     socket.on("disconnect", () => {
         console.log("disconnected from ===> ", socket.id);
         socket.broadcast.to(room).emit("detached", socket.id);

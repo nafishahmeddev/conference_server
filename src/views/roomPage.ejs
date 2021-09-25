@@ -13,16 +13,24 @@
 <body>
 <div class="uk-height-1-1 uk-width-1-1 uk-position-relative uk-background-secondary">
   <video id="bigView" class="uk-height-1-1 uk-width-1-1" style="object-fit: contain"></video>
-
   <div id="videos" class="uk-position-absolute uk-height-1-1  uk-position-top-right uk-padding-small">
     <div class="uk-border-rounded uk-overflow-hidden uk-margin-small-top video-thumb remote_video_1dIoVcv4uTweCKyXAAAH">
       <video id="localView"  muted="muted" onclick="switchVideo(this)"></video>
-      <label>Me</label>
+      <label class="local-id"></label>
     </div>
     <div class="remote-videos"></div>
   </div>
+
+  <small class="local-id uk-position-bottom-left uk-display-block"
+         style="color: black;padding: 2px 4px; background-color: rgba(255,255,255,0.5); backdrop-filter: blur(5px); border-radius: 0 5px 0 0"></small>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js" integrity="sha512-WL6WGKMPBiM9PnHRYIn5YEtq0Z8XP4fkVb4qy7PP4vhmYQErJ/dySyXuFIMDf1eEYCXCrQrMJfkNwKc9gsjTjA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+  const debug = (incoming = true, message, id="") =>{
+    id = id!==""?`:${id}`: "";
+    console.log(incoming?"=====>":"<=====", message, id);
+  }
+</script>
 <script>
   const localView = document.getElementById("localView");
   //global scopes
@@ -33,7 +41,7 @@
   const signaling = io("/conference",{
     query: {
       room_id: "<%= room_id %>",
-      name: "NafishAhmed"
+      name: "Nafish Ahmed"
     }
   });
   // handles JSON.stringify/parse
@@ -51,6 +59,7 @@
       localView.srcObject = local_stream;
       localView.play();
       signaling.emit("join");
+
     });
   } catch (err) {
     console.error(err);
@@ -78,13 +87,13 @@
   signaling.on("join", async (id)=>{
     if (!id) return;
     peers[id] = await createPeerAdder(id);
-    console.log("join===>", peers);
+    debug(true,"join", id);
   });
   signaling.on("candidate", async (event)=>{
     let pc = peers[event.from];
     if (!pc) return;
     await pc.addIceCandidate(new RTCIceCandidate(event.candidate));
-    console.log("candidate===>",peers);
+    console.log("===>candidate",event.from);
   });
   //joiner
   let createPeerJoiner = (id) =>{
@@ -122,20 +131,24 @@
 
     peers[event.from] = pc;
 
-    console.log("offer===>",peers);
+    console.log("===>offer",event.from);
   });
   signaling.on("answer", async (event)=>{
     if (!event.from) return;
     let pc = peers[event.from];
     await pc.setRemoteDescription(new RTCSessionDescription(event.answer));
-    console.log("answer===>", event);
+    console.log("===>answer", event.from);
   });
 
   signaling.on("detached", async (id)=>{
     delete peers[id];
     deleteContainer(id);
+    console.log("===>answer", id);
   });
 
+  signaling.on("connect",e=>{
+    document.querySelectorAll(".local-id").forEach(label=>label.innerText = signaling.id);
+  })
 
 
   /////
@@ -172,7 +185,12 @@
   const switchVideo = (el)=>{
     let bigView = document.querySelector("#bigView");
     bigView.srcObject = el.srcObject;
-    bigView.play();
+    try {
+      bigView.play();
+    } catch (e){
+
+    }
+
     bigView.volume = 0;
   }
   const deleteContainer = (id) =>{
@@ -182,3 +200,5 @@
 </script>
 </body>
 </html>
+
+

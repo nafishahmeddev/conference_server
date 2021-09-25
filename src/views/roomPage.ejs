@@ -156,7 +156,7 @@
   })
   /////
   const addRemoteView = (id, streams) =>{
-    console.log(streams);
+    console.log(streams[0].getTracks());
     deleteContainer(id);
     if (!streams || !id) return;
     let video = document.createElement("video");

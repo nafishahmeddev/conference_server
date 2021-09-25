@@ -131,11 +131,6 @@
   /////
 
   const addRemoteView = (id, streams, joiner =false) =>{
-    console.log(
-            streams[0],
-            local_stream,
-            joiner
-    );
     deleteContainer(id);
     if (!streams || !id) return;
     let video = document.createElement("video");

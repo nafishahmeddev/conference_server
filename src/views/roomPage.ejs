@@ -76,10 +76,6 @@
     let pc = new RTCPeerConnection(configuration);
     //sending my stream
     local_stream.getTracks().forEach((track) => pc.addTrack(track, local_stream));
-    // After remote track media arrives, show it in remote video element.
-    pc.ontrack = (event) => {
-      addRemoteView(id, event.streams, false);
-    };
 
     pc.onnegotiationneeded = async () => {
       const offer = await pc.createOffer()
@@ -89,6 +85,10 @@
         offer: pc.localDescription
       });
     }
+    // After remote track media arrives, show it in remote video element.
+    pc.ontrack = (event) => {
+      addRemoteView(id, event.streams, false);
+    };
     return pc;
   }
   signaling.on("join", async (id)=>{

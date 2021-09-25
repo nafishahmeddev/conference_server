@@ -184,15 +184,11 @@
     switchVideo(video);
   }
   const switchVideo = (el)=>{
-    let bigView = document.querySelector("#bigView");
-    bigView.srcObject = el.srcObject;
-    try {
-      bigView.play();
-    } catch (e){
-
-    }
-
-    bigView.volume = 0;
+    let video = document.querySelector("#bigView");
+    video.srcObject = el.srcObject;
+    video.autoplay = true;
+    video.playsInline = true;
+    video.muted = true;
   }
   const deleteContainer = (id) =>{
     let videos = document.querySelectorAll(`.remote_video_${id}`);

@@ -5,18 +5,18 @@ module.exports =  (io, socket) =>{
         console.log(socket.id ," has joined to ===> ", room);
         socket.broadcast.to(room).emit("join", socket.id);
     });
-    socket.on("candidate", (candidate) => {
+    socket.on("candidate", (event) => {
         console.log("candidate received from ===> ", socket.id);
-        socket.broadcast.to(room).emit("candidate", {
+        socket.in(room).to(event.to).emit("candidate", {
             from: socket.id,
-            candidate:candidate
+            candidate:candidate.candidate
         });
     });
-    socket.on("offer", (offer) => {
+    socket.on("offer", (event) => {
         console.log("offer received from ===> ", socket.id);
-        socket.broadcast.to(room).emit("offer", {
+        socket.in(room).to(event.to).emit("offer", {
             from: socket.id,
-            offer: offer
+            offer: event.offer
         });
     });
     socket.on('answer', (event) => {

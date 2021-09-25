@@ -69,7 +69,10 @@
 
     const offer = await pc.createOffer()
     await pc.setLocalDescription(offer);
-    signaling.emit("offer", pc.localDescription);
+    signaling.emit("offer", {
+      to: id,
+      offer: pc.localDescription
+    });
     return pc;
   }
   signaling.on("join", async (id)=>{
@@ -93,7 +96,11 @@
     let limit = 0;
     pc.onicecandidate = (ev) =>{
       if(!ev || !ev.candidate || limit === 1) return;
-      signaling.emit("candidate", ev.candidate);
+      signaling.emit("candidate", {
+        to: id,
+        candidate: ev.candidate
+      });
+
       limit = 1;
     }
     pc.ontrack = (event) => {

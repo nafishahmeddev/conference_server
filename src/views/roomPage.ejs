@@ -71,7 +71,7 @@
   }
 
   //adder
-  let createPeerAdder = async (id) =>{
+  let createPeerAdder = async (id) => {
     // ICE candidate configuration.
     let pc = new RTCPeerConnection(configuration);
     //sending my stream
@@ -81,12 +81,14 @@
       addRemoteView(id, event.streams, false);
     };
 
-    const offer = await pc.createOffer()
-    await pc.setLocalDescription(offer);
-    signaling.emit("offer", {
-      to: id,
-      offer: pc.localDescription
-    });
+    pc.onnegotiationneeded = async () => {
+      const offer = await pc.createOffer()
+      await pc.setLocalDescription(offer);
+      signaling.emit("offer", {
+        to: id,
+        offer: pc.localDescription
+      });
+    }
     return pc;
   }
   signaling.on("join", async (id)=>{

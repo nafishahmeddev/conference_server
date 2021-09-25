@@ -123,8 +123,7 @@
 
   signaling.on("detached", async (id)=>{
     delete peers[id];
-    let videos = document.querySelectorAll(`.remote_video_${id}`);
-    videos.forEach(video=>video.remove());
+    deleteContainer(id);
   });
 
 
@@ -169,6 +168,10 @@
     bigView.srcObject = el.srcObject;
     bigView.play();
     bigView.volume = 0;
+  }
+  const deleteContainer = (id) =>{
+    let videos = document.querySelectorAll(`.remote_video_${id}`);
+    videos.forEach(video=>video.remove());
   }
 </script>
 </body>

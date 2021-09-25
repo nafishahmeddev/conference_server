@@ -1,11 +1,15 @@
 
 module.exports =  (io, socket) =>{
     const room = socket.handshake.query.room_id;
+    const name = socket.handshake.query.name;
     let debug = require('debug')(`conference-server:socket:${room}`);
 
     socket.on("join", ()=>{
         debug(socket.id ," has joined to ===> ", room);
-        socket.broadcast.to(room).emit("join", socket.id);
+        socket.broadcast.to(room).emit("join", {
+            id: socket.id,
+            name: name
+        });
     });
     socket.on("candidate", (event) => {
         debug("candidate received from ===> ", socket.id, "for===>", event.to);
@@ -18,6 +22,7 @@ module.exports =  (io, socket) =>{
         debug("offer received from ===> ", socket.id, "for===>", event.to);
         socket.to(event.to).emit("offer", {
             from: socket.id,
+            name: name,
             offer: event.offer
         });
     });

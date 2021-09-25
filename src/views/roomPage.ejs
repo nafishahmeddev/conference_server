@@ -27,22 +27,26 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js" integrity="sha512-WL6WGKMPBiM9PnHRYIn5YEtq0Z8XP4fkVb4qy7PP4vhmYQErJ/dySyXuFIMDf1eEYCXCrQrMJfkNwKc9gsjTjA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
   const debug = (incoming = true, message, id="") =>{
-    id = id!==""?`:${id}`: "";
-    console.log(incoming?"=====>":"<=====", message, id);
+    id = id!==""?`${incoming?"from":"to"} ${id}`: "";
+    console.info(incoming?"%c ↓":"%c ↑", `color: ${incoming?"green":"red"}`,  message, id );
   }
 </script>
 <script>
   const localView = document.getElementById("localView");
   //global scopes
   let peers = {};
+  var users = {};
   let remote_streams = {};
   let local_stream = [];
   //
+  const names =["Nafish Ahmed", "Min Aksarul Ahamed", "Mustafizur Rahamen", "Abul Kalam Azad", "Samima Nasrin", "Bilkis Khatun"];
+  //
+  const signaling_query = {
+    room_id: "<%= room_id %>",
+    name: names[Math.floor(Math.random() * names.length)]
+  }
   const signaling = io("/conference",{
-    query: {
-      room_id: "<%= room_id %>",
-      name: "Nafish Ahmed"
-    }
+    query: signaling_query
   });
   // handles JSON.stringify/parse
   const constraints = {audio: true, video: true};
@@ -55,6 +59,7 @@
       localView.srcObject = local_stream;
       localView.play();
       signaling.emit("join");
+      debug(false, "join");
 
     });
   } catch (err) {
@@ -67,14 +72,15 @@
     let pc = new RTCPeerConnection(configuration);
     //sending my stream
     local_stream.getTracks().forEach((track) => pc.addTrack(track, local_stream));
-
-    pc.onnegotiationneeded = async () => {
+    //After peer connected
+    pc.onnegotiationneeded = async (ev) => {
       const offer = await pc.createOffer()
       await pc.setLocalDescription(offer);
       signaling.emit("offer", {
         to: id,
         offer: pc.localDescription
       });
+      debug(false, "offer", id);
     }
     // After remote track media arrives, show it in remote video element.
     pc.ontrack = (event) => {
@@ -82,17 +88,19 @@
     };
     return pc;
   }
-  signaling.on("join", async (id)=>{
-    if (!id) return;
-    peers[id] = await createPeerAdder(id);
-    debug(true,"join", id);
+  signaling.on("join", async (event)=>{
+    if (!event.id || ! event.name) return;
+    users[event.id] = {
+      name: event.name
+    }
+    peers[event.id] = await createPeerAdder(event.id);
+    debug(true, "join", event.id);
   });
   signaling.on("candidate", async (event)=>{
     let pc = peers[event.from];
     if (!pc) return;
     await pc.addIceCandidate(new RTCIceCandidate(event.candidate));
-    console.log(pc);
-    console.log("===>candidate",event.from);
+    debug(true, "candidate",event.from);
   });
   //joiner
   let createPeerJoiner = (id) =>{
@@ -108,6 +116,7 @@
         to: id,
         candidate: ev.candidate
       });
+      debug(false, "candidate", id);
 
       limit = 1;
     }
@@ -119,7 +128,11 @@
     return pc;
   }
   signaling.on("offer", async (event)=>{
-    if (!event.from) return;
+    if (!event.from||!event.name) return;
+    users[event.from] = {
+      name: event.name
+    };
+    debug(true, "offer",event.from);
     let pc = createPeerJoiner(event.from);
     await pc.setRemoteDescription(new RTCSessionDescription(event.offer));
     await pc.setLocalDescription(await pc.createAnswer());
@@ -127,42 +140,41 @@
       to : event.from,
       answer : pc.localDescription
     });
+    debug(false, "answer", event.from);
 
     peers[event.from] = pc;
-
-    console.log("===>offer",event.from);
   });
   signaling.on("answer", async (event)=>{
     if (!event.from) return;
     let pc = peers[event.from];
     await pc.setRemoteDescription(new RTCSessionDescription(event.answer));
-    console.log("===>answer", event.from);
+    debug(true, "answer", event.from);
   });
 
   signaling.on("detached", async (id)=>{
     delete peers[id];
+    delete users[id];
     deleteContainer(id);
-    console.log("===>answer", id);
+    debug(true, "detached", id);
   });
 
   signaling.on("connect",e=>{
-    document.querySelectorAll(".local-id").forEach(label=>label.innerText = signaling.id);
+    document.querySelectorAll(".local-id").forEach(label=>label.innerText = signaling_query.name);
   })
   /////
   const addRemoteView = (id, streams) =>{
-    console.log(streams[0].getTracks());
     deleteContainer(id);
     if (!streams || !id) return;
     let video = document.createElement("video");
     video.srcObject = streams[0];
     video.autoplay = true;
     video.playsInline = true;
-    //video.muted = true;
+    video.muted = true;
     video.onclick =(ev)=> switchVideo(ev.target);
 
 
     let label = document.createElement("label");
-    label.innerText = id;
+    label.innerText = users[id]["name"];
 
 
     let content = document.createElement("div");

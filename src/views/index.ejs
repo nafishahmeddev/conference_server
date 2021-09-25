@@ -1,82 +1,71 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-    <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io("http://localhost",{
-      query:`room_id=xxxx`
-    });
-    // handles JSON.stringify/parse
-    const signaling = new SignalingChannel();
-    const constraints = {audio: true, video: true};
-    const configuration = {iceServers: [{urls: 'stuns:stun.example.org'}]};
-    const pc = new RTCPeerConnection(configuration);
+<html lang="en">
+<head>
+  <title><%= title %></title>
+  <!-- UIkit CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/css/uikit.min.css" />
 
-    // Send any ice candidates to the other peer.
-    pc.onicecandidate = ({candidate}) => signaling.send({candidate});
+  <!-- UIkit JS -->
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/js/uikit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/js/uikit-icons.min.js"></script>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+<body>
+<section class="uk-section uk-section-large ">
+    <div class="uk-container">
+        <div class="uk-grid-match uk-child-width-expand" uk-grid>
+            <div class="uk-width-large">
 
-    // Let the "negotiationneeded" event trigger offer generation.
-    pc.onnegotiationneeded = async () => {
-      try {
-        await pc.setLocalDescription(await pc.createOffer());
-        // send the offer to the other peer
-        signaling.send({desc: pc.localDescription});
-      } catch (err) {
-        console.error(err);
-      }
-    };
 
-    // After remote track media arrives, show it in remote video element.
-    pc.ontrack = (event) => {
-      // Don't set srcObject again if it is already set.
-      if (remoteView.srcObject) return;
-      remoteView.srcObject = event.streams[0];
-    };
+                <h1>Premium video meetings. Now free for everyone.</h1>
+                <h4 class="uk-text-muted">We re-engineered the service we built for secure business meetings, Google Meet, to make it free and available for all.</h4>
 
-    // Call start() to initiate.
-    async function start() {
-      try {
-        // Get local stream, show it in self-view, and add it to be sent.
-        const stream =
-                await navigator.mediaDevices.getUserMedia(constraints);
-        stream.getTracks().forEach((track) =>
-                pc.addTrack(track, stream));
-        selfView.srcObject = stream;
-      } catch (err) {
-        console.error(err);
-      }
-    }
+                <div class="uk-grid-small uk-margin-large" uk-grid>
+                    <div class="uk-width-expand">
+                        <input type="text" id="room-input" class="uk-input uk-border-rounded uk-form-large" placeholder="Meeting Room">
+                    </div>
+                    <div>
+                        <button type="button" id="start-btn" class="uk-button uk-button-primary uk-border-rounded uk-button-large">Start</button>
+                    </div>
+                </div>
+            </div>
+            <div></div>
+            <div class="uk-width-large uk-flex-middle">
+                <div uk-slideshow="animation: push; ratio:1:1">
 
-    signaling.onmessage = async ({desc, candidate}) => {
-      try {
-        if (desc) {
-          // If you get an offer, you need to reply with an answer.
-          if (desc.type === 'offer') {
-            await pc.setRemoteDescription(desc);
-            const stream =
-                    await navigator.mediaDevices.getUserMedia(constraints);
-            stream.getTracks().forEach((track) =>
-                    pc.addTrack(track, stream));
-            await pc.setLocalDescription(await pc.createAnswer());
-            signaling.send({desc: pc.localDescription});
-          } else if (desc.type === 'answer') {
-            await pc.setRemoteDescription(desc);
-          } else {
-            console.log('Unsupported SDP type.');
-          }
-        } else if (candidate) {
-          await pc.addIceCandidate(candidate);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    };
-  </script>
-  </body>
+                    <div class="uk-position-relative uk-visible-toggle uk-light" tabindex="-1">
+
+                        <ul class="uk-slideshow-items">
+                            <li class="uk-border-circle">
+                                <img src="https://picsum.photos/400/400" alt="" uk-cover>
+                            </li>
+                            <li class="uk-border-circle">
+                                <img src="https://picsum.photos/410/410" alt="" uk-cover>
+                            </li>
+                            <li class="uk-border-circle">
+                                <img src="https://picsum.photos/405/405" alt="" uk-cover>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <ul class="uk-slideshow-nav uk-dotnav uk-flex-center uk-margin"></ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+  document.querySelector("#start-btn").addEventListener("click", ()=>{
+      let room = document.querySelector("#room-input").value;
+      if(room==""){
+          alert("invalid room");
+          return
+      };
+    window.location.href = `/${room}`;
+  })
+</script>
+</body>
 </html>
+
+

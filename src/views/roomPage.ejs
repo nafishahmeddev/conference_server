@@ -15,7 +15,7 @@
   <video id="bigView" class="uk-height-1-1 uk-width-1-1" style="object-fit: contain"></video>
   <div id="videos" class="uk-position-absolute uk-height-1-1  uk-position-top-right uk-padding-small">
     <div class="uk-border-rounded uk-overflow-hidden uk-margin-small-top video-thumb remote_video_1dIoVcv4uTweCKyXAAAH">
-      <video id="localView"  muted="muted" onclick="switchVideo(this)"></video>
+      <video id="localView"  muted="muted" autoplay="autoplay" onclick="switchVideo(this)"></video>
       <label class="local-id"></label>
     </div>
     <div class="remote-videos"></div>
@@ -158,7 +158,9 @@
     if (!streams || !id) return;
     let video = document.createElement("video");
     video.srcObject = streams[0];
-    video.play();
+    video.autoplay = true;
+    video.playsInline = true;
+    //video.muted = true;
     video.onclick =(ev)=> switchVideo(ev.target);
 
 

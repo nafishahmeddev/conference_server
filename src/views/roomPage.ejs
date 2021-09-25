@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <!-- UIkit CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/css/uikit.min.css" />
+
+  <!-- UIkit JS -->
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/js/uikit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/js/uikit-icons.min.js"></script>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+<body>
+<div class="uk-height-1-1 uk-width-1-1 uk-position-relative uk-background-secondary">
+  <video id="bigView" class="uk-height-1-1 uk-width-1-1" style="object-fit: contain"></video>
+
+  <div id="videos" class="uk-position-absolute uk-height-1-1  uk-position-top-right uk-padding-small">
+    <div class="uk-border-rounded uk-overflow-hidden uk-margin-small-top video-thumb remote_video_1dIoVcv4uTweCKyXAAAH">
+      <video id="localView"  muted="muted" onclick="switchVideo(this)"></video>
+      <label>Me</label>
+    </div>
+    <div class="remote-videos"></div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js" integrity="sha512-WL6WGKMPBiM9PnHRYIn5YEtq0Z8XP4fkVb4qy7PP4vhmYQErJ/dySyXuFIMDf1eEYCXCrQrMJfkNwKc9gsjTjA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+  const localView = document.getElementById("localView");
+  //global scopes
+  let peers = {};
+  let remote_streams = {};
+  let local_stream = [];
+  //
+  const signaling = io("/conference",{
+    query: {
+      room_id: "<%= room_id %>",
+      name: "NafishAhmed"
+    }
+  });
+  // handles JSON.stringify/parse
+  const constraints = {audio: true, video: true};
+  const configuration = {
+    iceServers: [{
+      urls: ['stun:stun.l.google.com:19302']
+    }]
+  };
+  //trying to get stream
+  try {
+    // Get local stream, show it in self-view, and add it to be sent.
+    navigator.mediaDevices.getUserMedia(constraints).then(stream=>{
+      local_stream = stream;
+      localView.srcObject = local_stream;
+      localView.play();
+      signaling.emit("join");
+    });
+  } catch (err) {
+    console.error(err);
+  }
+
+  //adder
+  let createPeerAdder = async (id) =>{
+    // ICE candidate configuration.
+    let pc = new RTCPeerConnection(configuration);
+    //sending my stream
+    local_stream.getTracks().forEach((track) => pc.addTrack(track, local_stream));
+    // After remote track media arrives, show it in remote video element.
+    pc.ontrack = (event) => {
+      addRemoteView(id, event.streams, false);
+    };
+
+    const offer = await pc.createOffer()
+    await pc.setLocalDescription(offer);
+    signaling.emit("offer", pc.localDescription);
+    return pc;
+  }
+  signaling.on("join", async (id)=>{
+    if (!id) return;
+    peers[id] = await createPeerAdder(id);
+    console.log("join===>", peers);
+  });
+  signaling.on("candidate", async (event)=>{
+    let pc = peers[event.from];
+    if (!pc) return;
+    await pc.addIceCandidate(new RTCIceCandidate(event.candidate));
+    console.log("candidate===>",peers);
+  });
+  //joiner
+  let createPeerJoiner = (id) =>{
+    // ICE candidate configuration.
+    let pc = new RTCPeerConnection(configuration);
+    //sending my stream
+    local_stream.getTracks().forEach((track) => pc.addTrack(track, local_stream));
+    // Let the "negotiationneeded" event trigger offer generation.
+    let limit = 0;
+    pc.onicecandidate = (ev) =>{
+      if(!ev || !ev.candidate || limit === 1) return;
+      signaling.emit("candidate", ev.candidate);
+      limit = 1;
+    }
+    pc.ontrack = (event) => {
+      // Don't set srcObject again if it is already set.
+      addRemoteView(id, event.streams, true);
+    };
+
+    return pc;
+  }
+  signaling.on("offer", async (event)=>{
+    if (!event.from) return;
+    let pc = createPeerJoiner(event.from);
+    await pc.setRemoteDescription(new RTCSessionDescription(event.offer));
+    await pc.setLocalDescription(await pc.createAnswer());
+    signaling.emit("answer",  pc.localDescription);
+
+    peers[event.from] = pc;
+
+    console.log("offer===>",peers);
+  });
+  signaling.on("answer", async (event)=>{
+    if (!event.from) return;
+    let pc = peers[event.from];
+    await pc.setRemoteDescription(new RTCSessionDescription(event.answer));
+    console.log("answer===>", event);
+  });
+
+  signaling.on("detached", async (id)=>{
+    delete peers[id];
+    let videos = document.querySelectorAll(`.remote_video_${id}`);
+    videos.forEach(video=>video.remove());
+  });
+
+
+
+  /////
+
+  const addRemoteView = (id, streams, joiner =false) =>{
+    console.log(
+            streams[0],
+            local_stream,
+            joiner
+    );
+    if (!streams || !id) return;
+    let video = document.createElement("video");
+    video.srcObject = streams[0];
+    video.play();
+    video.onclick =(ev)=> switchVideo(ev.target);
+
+
+    let label = document.createElement("label");
+    label.style.cssText = "padding:3px 5px; color: white; font-size: 12px; display: block";
+    label.innerText = id;
+
+
+    let content = document.createElement("div");
+    content.classList.add("uk-border-rounded");
+    content.classList.add("uk-overflow-hidden")
+    content.classList.add("uk-margin-small-top");
+    content.classList.add("video-thumb");
+    content.classList.add(`remote_video_${id}`);
+
+    content.append(video);
+    content.append(label);
+
+    let container = document.querySelector(".remote-videos");
+    container.append(content);
+
+    switchVideo(video);
+  }
+  const switchVideo = (el)=>{
+    let bigView = document.querySelector("#bigView");
+    bigView.srcObject = el.srcObject;
+    bigView.play();
+    bigView.volume = 0;
+  }
+</script>
+</body>
+</html>

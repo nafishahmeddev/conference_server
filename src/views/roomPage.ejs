@@ -136,6 +136,7 @@
             local_stream,
             joiner
     );
+    deleteContainer(id);
     if (!streams || !id) return;
     let video = document.createElement("video");
     video.srcObject = streams[0];

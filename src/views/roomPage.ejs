@@ -89,6 +89,7 @@
   });
   signaling.on("candidate", async (event)=>{
     let pc = peers[event.from];
+    console.log(pc);
     if (!pc) return;
     await pc.addIceCandidate(new RTCIceCandidate(event.candidate));
     console.log("===>candidate",event.from);

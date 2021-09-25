@@ -155,8 +155,9 @@
     document.querySelectorAll(".local-id").forEach(label=>label.innerText = signaling.id);
   })
   /////
-  const addRemoteView = (id, streams, joiner =false) =>{
-    //deleteContainer(id);
+  const addRemoteView = (id, streams) =>{
+    console.log(streams);
+    deleteContainer(id);
     if (!streams || !id) return;
     let video = document.createElement("video");
     video.srcObject = streams[0];

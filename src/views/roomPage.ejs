@@ -61,17 +61,12 @@
   }
 
   const init = () => {
-
-
-
-
-
     const signaling = io("/conference", {
       query: signaling_query
     });
     // handles JSON.stringify/parse
     signaling.emit("join");
-    const configuration = {iceServers: [{urls: 'stun:8.210.29.192:5349'}]};
+    const configuration = {iceServers: [{url:'stun:stun01.sipphone.com'}]};
     //adder
     let createPeerAdder = async (id) => {
       // ICE candidate configuration.

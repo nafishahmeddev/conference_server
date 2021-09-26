@@ -13,44 +13,53 @@ body {
   width: 100%;
 }
 
-#videos{
-  background-color: rgba(0,0,0,0.5);
-  backdrop-filter: blur(5px);
+#videos {
   width: 100%;
   bottom: 0;
   left: 0;
-  overflow-y: auto;
+  overflow-x: auto;
   display: flex;
-}
 
-.video-thumb{
-  border: 1px solid rgba(0,0,0,0.03);
-  background: rgba(255, 255, 255, 0.5);
-  position: relative;
-  width: 200px;
-  video{
-    border-radius: 3px 3px 0 0 ;
-    height: 140px;
-    object-fit: cover;
-  }
-  label {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 3px 5px;
-    font-size: 12px;
-    display: block;
-    border-bottom: 1px solid rgba(0,0,0,0.03);
-    background-color: rgba(0,0,0,0.5);
-    color: white;
-    backdrop-filter: blur(5px);
-  }
-  button{
+  .video-thumb {
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    background: rgba(255, 255, 255, 0.5);
+    position: relative;
+    width: 100px;
+    height: 70px;
+    margin-right: 10px;
+    border-radius: 3px;
+    overflow: hidden;
 
+    video {
+      border-radius: 3px 3px 0 0;
+      height: 100%;
+      width: 100%;
+      object-fit: cover;
+    }
+
+    label {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 1px 3px;
+      font-size: 9px;
+      display: block;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      backdrop-filter: blur(5px);
+    }
+
+    button {
+
+    }
   }
-}
-.video-thumb:hover{
-  border-color: #0460be;
-  cursor: pointer;
+  .video-thumb:hover {
+    border-color: #0460be;
+    cursor: pointer;
+  }
+  .video-thumb:nth-last-child(1){
+    right: 0;
+  }
 }

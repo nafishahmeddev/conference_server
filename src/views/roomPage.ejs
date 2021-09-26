@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %></title>
   <!-- UIkit CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/css/uikit.min.css" />
@@ -13,10 +14,10 @@
 <body>
 <div class="uk-height-1-1 uk-width-1-1 uk-position-relative uk-background-secondary">
   <video id="bigView" class="uk-height-1-1 uk-width-1-1" style="object-fit: contain"></video>
-  <div id="videos" class="uk-position-absolute uk-height-1-1  uk-position-top-right uk-padding-small">
-    <div class="uk-border-rounded uk-overflow-hidden uk-margin-small-top video-thumb remote_video_1dIoVcv4uTweCKyXAAAH">
+  <div id="videos" class="uk-position-absolute uk-padding-small">
+    <div class="video-thumb">
       <video id="localView"  muted="muted" autoplay="autoplay" onclick="switchVideo(this)"></video>
-      <label class="local-id"></label>
+      <label ><span class="local-id"></span> (Me)</label>
     </div>
     <div class="remote-videos"></div>
   </div>
@@ -191,9 +192,6 @@
 
 
     let content = document.createElement("div");
-    content.classList.add("uk-border-rounded");
-    content.classList.add("uk-overflow-hidden")
-    content.classList.add("uk-margin-small-top");
     content.classList.add("video-thumb");
     content.classList.add(`remote_video_${id}`);
 

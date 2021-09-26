@@ -210,7 +210,12 @@
     video.srcObject = el.srcObject;
     video.autoplay = true;
     video.playsInline = true;
-    video.muted = false;
+    if(el==localView){
+      video.muted = true;
+    } else {
+      video.muted = false;
+    }
+
   }
   const deleteContainer = (id) => {
     let videos = document.querySelectorAll(`.remote_video_${id}`);

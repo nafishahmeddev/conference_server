@@ -73,6 +73,17 @@
       let pc = new RTCPeerConnection(configuration);
       //sending my stream
       local_stream.getTracks().forEach((track) => pc.addTrack(track, local_stream));
+      let limit = 0;
+      pc.onicecandidate = (ev) => {
+        if (!ev || !ev.candidate || limit === 1) return;
+        signaling.emit("candidate", {
+          to: id,
+          candidate: ev.candidate
+        });
+        debug(false, "candidate", id);
+
+        limit = 1;
+      }
       //After peer connected
       pc.onnegotiationneeded = async (ev) => {
         const offer = await pc.createOffer()
@@ -159,7 +170,6 @@
       deleteContainer(id);
       debug(true, "detached", id);
     });
-
     signaling.on("connect", e => {
       document.querySelectorAll(".local-id").forEach(label => label.innerText = signaling_query.name);
     })

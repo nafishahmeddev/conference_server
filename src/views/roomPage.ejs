@@ -66,7 +66,11 @@
     });
     // handles JSON.stringify/parse
     signaling.emit("join");
-    const configuration = {iceServers: [{"urls":["stun:stun.l.google.com:19302"]}]};
+    const configuration = {iceServers: [
+        {
+          'urls': 'stun:stun.l.google.com:19302'
+        }
+      ]};
     //adder
     let createPeerAdder = async (id) => {
       // ICE candidate configuration.

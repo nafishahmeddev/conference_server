@@ -51,6 +51,21 @@ module.exports =  (io, socket) =>{
         });
     })
 
+    socket.on("audio_mute", muted=>{
+        debug(true , "AUDIO_MUTE", socket.id,"Broker",room);
+        socket.broadcast.to(room).emit("audio_mute", {
+            id: socket.id,
+            muted: muted
+        });
+    })
+    socket.on("video_mute", muted=>{
+        debug(true , "VIDEO_MUTE", socket.id,"Broker",room);
+        socket.broadcast.to(room).emit("video_mute", {
+            id: socket.id,
+            muted: muted
+        });
+    })
+
     socket.on("disconnect", () => {
         debug(false , "DISCONNECT", socket.id, "Everyone", room);
         socket.broadcast.to(room).emit("detached", socket.id);

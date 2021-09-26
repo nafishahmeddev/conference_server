@@ -15,7 +15,14 @@
 </head>
 <body>
 <div class="uk-height-1-1 uk-width-1-1 uk-position-relative uk-background-secondary">
-  <video id="bigView" class="uk-height-1-1 uk-width-1-1"></video>
+  <nav class="uk-navbar uk-navbar-container uk-margin uk-navbar-transparent uk-light">
+    <div class="uk-navbar-left">
+      <a class="uk-navbar-toggle" href="#">
+        <span uk-navbar-toggle-icon></span> <span class="uk-margin-small-left"><%= room_id %></span>
+      </a>
+    </div>
+  </nav>
+  <video id="bigView" class="uk-height-1-1 uk-width-1-1 uk-position-top-right"></video>
   <div id="videos" class="uk-position-absolute uk-padding-small remote-videos">
     <div class="video-thumb">
       <video id="localView"  muted="muted" autoplay="autoplay" onclick="switchVideo(this)"></video>
@@ -23,8 +30,8 @@
     </div>
   </div>
   <div class="controller-container">
-    <button class="uk-border-rounded uk-button-primary"><i class="fas fa-microphone"></i></button>
-    <button class="uk-border-rounded uk-button-primary"><i class="fas fa-video"></i></button>
+    <button class="uk-border-rounded uk-button-primary" onclick="toggleAudio()"><i class="fas fa-microphone"></i></button>
+    <button class="uk-border-rounded uk-button-primary" onclick="toggleVideo()"><i class="fas fa-video"></i></button>
     <button class="uk-border-rounded uk-button-danger" onclick="window.location.href= '/'"><i class="fas fa-phone-slash"></i></button>
 
   </div>
@@ -62,11 +69,12 @@
       debug(false, "join");
     });
   } catch (err) {
-    console.error(err);
+    throw  err;
   }
 
+  let signaling;
   const init = () => {
-    const signaling = io("/conference", {
+    signaling = io("/conference", {
       query: signaling_query
     });
     // handles JSON.stringify/parse
@@ -167,6 +175,24 @@
       debug(true, "answer", event.from);
     });
 
+    //both
+    signaling.on("audio_mute", event=>{
+      let video_thumb = document.querySelector(`.remote_video_${event.id}`);
+      if(event.muted) {
+        video_thumb.classList.add("audio_muted");
+      } else {
+        video_thumb.classList.remove("audio_muted");
+      }
+    })
+    signaling.on("video_mute", event=>{
+      let video_thumb = document.querySelector(`.remote_video_${event.id}`);
+      if(event.muted) {
+        video_thumb.classList.add("video_muted");
+      } else {
+        video_thumb.classList.remove("video_muted");
+      }
+    })
+
     signaling.on("detached", async (id) => {
       peers[id].close();
       delete peers[id];
@@ -195,12 +221,18 @@
     label.innerText = users[id]["name"];
 
 
+    let audio_muted = document.createElement("span");
+    audio_muted.classList.add("audio-muted");
+    audio_muted.innerHTML = `<i class="fas fa-volume-mute"></i>`;
+
+
     let content = document.createElement("div");
     content.classList.add("video-thumb");
     content.classList.add(`remote_video_${id}`);
 
     content.append(video);
     content.append(label);
+    content.append(audio_muted);
 
     let container = document.querySelector(".remote-videos");
     container.append(content);
@@ -228,6 +260,17 @@
         askName();
       }
     });
+  }
+
+  const toggleAudio = () =>{
+    const enabled = !(local_stream.getAudioTracks()[0].enabled);
+    local_stream.getAudioTracks()[0].enabled = enabled;
+    signaling.emit("audio_mute", !enabled);
+  }
+  const toggleVideo = () =>{
+    const enabled = !(local_stream.getVideoTracks()[0].enabled);
+    local_stream.getVideoTracks()[0].enabled = enabled;
+    signaling.emit("video_mute", !enabled);
   }
 
 

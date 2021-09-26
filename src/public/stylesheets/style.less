@@ -24,23 +24,17 @@ body {
   flex-wrap: nowrap;
 
   .video-thumb {
-    border: 1px solid rgba(0, 0, 0, 0.03);
-    background: rgba(255, 255, 255, 0.5);
     position: relative;
     min-width: 150px;
     max-width: 150px;
     height: 100px;
     margin-right: 10px;
-    border-radius: 3px;
     overflow: hidden;
-
     video {
-      border-radius: 3px 3px 0 0;
       height: 100%;
       width: 100%;
       object-fit: cover;
     }
-
     label {
       position: absolute;
       top: 0;
@@ -49,15 +43,25 @@ body {
       padding: 1px 3px;
       font-size: 9px;
       display: block;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.03);
       background-color: rgba(0, 0, 0, 0.5);
       color: white;
       backdrop-filter: blur(5px);
     }
-
     button {
 
     }
+
+    .audio-muted{
+      display: none;
+    }
+  }
+  .video-thumb.audio_muted .audio-muted{
+    display: block;
+    position: absolute;
+    left: 3px;
+    bottom: 3px;
+    color: red;
+    font-size: 12px;
   }
   .video-thumb:hover {
     border-color: #0460be;
@@ -78,6 +82,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 10px;
+  background-color: rgba(0,0,0,0,0.5);
 
   & > button{
     height: 100%;

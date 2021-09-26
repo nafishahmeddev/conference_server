@@ -36,35 +36,42 @@
     room_id: "<%= room_id %>",
     name: ""
   }
+  const localView = document.getElementById("localView");
+
+  //global scopes
+  let peers = {};
+  let users = {};
+
+  let remote_streams = {};
+  let local_stream = [];
+
+  //trying to get stream
+  const constraints = {audio: true, video: true};
+  try {
+    // Get local stream, show it in self-view, and add it to be sent.
+    navigator.mediaDevices.getUserMedia(constraints).then(stream => {
+      local_stream = stream;
+      localView.srcObject = local_stream;
+      localView.play();
+      askName();
+      debug(false, "join");
+    });
+  } catch (err) {
+    console.error(err);
+  }
+
   const init = () => {
-    const localView = document.getElementById("localView");
-    //global scopes
-    let peers = {};
-    var users = {};
-    let remote_streams = {};
-    let local_stream = [];
+
+
+
+
 
     const signaling = io("/conference", {
       query: signaling_query
     });
     // handles JSON.stringify/parse
-    const constraints = {audio: true, video: true};
+    signaling.emit("join");
     const configuration = {iceServers: [{urls: 'stun:8.210.29.192:5349'}]};
-    //trying to get stream
-    try {
-      // Get local stream, show it in self-view, and add it to be sent.
-      navigator.mediaDevices.getUserMedia(constraints).then(stream => {
-        local_stream = stream;
-        localView.srcObject = local_stream;
-        localView.play();
-        signaling.emit("join");
-        debug(false, "join");
-
-      });
-    } catch (err) {
-      console.error(err);
-    }
-
     //adder
     let createPeerAdder = async (id) => {
       // ICE candidate configuration.
@@ -162,47 +169,48 @@
       document.querySelectorAll(".local-id").forEach(label => label.innerText = signaling_query.name);
     })
     /////
-    const addRemoteView = (id, streams) => {
-      deleteContainer(id);
-      if (!streams || !id) return;
-      let video = document.createElement("video");
-      video.srcObject = streams[0];
-      video.autoplay = true;
-      video.playsInline = true;
-      video.muted = true;
-      video.onclick = (ev) => switchVideo(ev.target);
+
+  }
+  const addRemoteView = (id, streams) => {
+    deleteContainer(id);
+    if (!streams || !id) return;
+    let video = document.createElement("video");
+    video.srcObject = streams[0];
+    video.autoplay = true;
+    video.playsInline = true;
+    video.muted = true;
+    video.onclick = (ev) => switchVideo(ev.target);
 
 
-      let label = document.createElement("label");
-      label.innerText = users[id]["name"];
+    let label = document.createElement("label");
+    label.innerText = users[id]["name"];
 
 
-      let content = document.createElement("div");
-      content.classList.add("uk-border-rounded");
-      content.classList.add("uk-overflow-hidden")
-      content.classList.add("uk-margin-small-top");
-      content.classList.add("video-thumb");
-      content.classList.add(`remote_video_${id}`);
+    let content = document.createElement("div");
+    content.classList.add("uk-border-rounded");
+    content.classList.add("uk-overflow-hidden")
+    content.classList.add("uk-margin-small-top");
+    content.classList.add("video-thumb");
+    content.classList.add(`remote_video_${id}`);
 
-      content.append(video);
-      content.append(label);
+    content.append(video);
+    content.append(label);
 
-      let container = document.querySelector(".remote-videos");
-      container.append(content);
+    let container = document.querySelector(".remote-videos");
+    container.append(content);
 
-      switchVideo(video);
-    }
-    const switchVideo = (el) => {
-      let video = document.querySelector("#bigView");
-      video.srcObject = el.srcObject;
-      video.autoplay = true;
-      video.playsInline = true;
-      video.muted = true;
-    }
-    const deleteContainer = (id) => {
-      let videos = document.querySelectorAll(`.remote_video_${id}`);
-      videos.forEach(video => video.remove());
-    }
+    switchVideo(video);
+  }
+  const switchVideo = (el) => {
+    let video = document.querySelector("#bigView");
+    video.srcObject = el.srcObject;
+    video.autoplay = true;
+    video.playsInline = true;
+    video.muted = true;
+  }
+  const deleteContainer = (id) => {
+    let videos = document.querySelectorAll(`.remote_video_${id}`);
+    videos.forEach(video => video.remove());
   }
 
   const askName = () =>{
@@ -215,7 +223,7 @@
       }
     });
   }
-  askName();
+
 
 
 

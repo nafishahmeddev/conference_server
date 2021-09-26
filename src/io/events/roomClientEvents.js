@@ -6,12 +6,8 @@ const getWhiteSpace = (word, max = 0) =>{
     return word;
 }
 const debug = (incoming=true, event, from,  to="", room="") =>{
-
     room = getWhiteSpace(room, 15);
     event = getWhiteSpace(event, 10);
-
-    let emoji = '\x1b[32m'+incoming?"↓":"↑" +'\x1b[0m';
-
     console.log(
         '\x1b[36m', `conference-server:socket`,'\x1b[0m',
         '\x1b[32m', incoming?"↓":"↑" ,'\x1b[0m',

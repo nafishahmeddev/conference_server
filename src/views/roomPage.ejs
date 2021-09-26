@@ -77,16 +77,13 @@
       let pc = new RTCPeerConnection(configuration);
       //sending my stream
       local_stream.getTracks().forEach((track) => pc.addTrack(track, local_stream));
-      let limit = 0;
       pc.onicecandidate = (ev) => {
-        if (!ev || !ev.candidate || limit === 1) return;
+        if (!ev || !ev.candidate) return;
         signaling.emit("candidate", {
           to: id,
           candidate: ev.candidate
         });
         debug(false, "candidate", id);
-
-        limit = 1;
       }
       //After peer connected
       pc.onnegotiationneeded = async (ev) => {
@@ -125,20 +122,15 @@
       //sending my stream
       local_stream.getTracks().forEach((track) => pc.addTrack(track, local_stream));
       // Let the "negotiationneeded" event trigger offer generation.
-      /*
-      let limit = 0;
+
       pc.onicecandidate = (ev) => {
-        if (!ev || !ev.candidate || limit === 1) return;
+        if (!ev || !ev.candidate) return;
         signaling.emit("candidate", {
           to: id,
           candidate: ev.candidate
         });
         debug(false, "candidate", id);
-
-        limit = 1;
       }
-
-       */
       pc.ontrack = (event) => {
         // Don't set srcObject again if it is already set.
         addRemoteView(id, event.streams, true);

@@ -10,20 +10,24 @@
   <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/js/uikit.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/js/uikit-icons.min.js"></script>
   <link rel='stylesheet' href='/stylesheets/style.css' />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
 <div class="uk-height-1-1 uk-width-1-1 uk-position-relative uk-background-secondary">
-  <video id="bigView" class="uk-height-1-1 uk-width-1-1" style="object-fit: contain"></video>
-  <div id="videos" class="uk-position-absolute uk-padding-small">
+  <video id="bigView" class="uk-height-1-1 uk-width-1-1"></video>
+  <div id="videos" class="uk-position-absolute uk-padding-small remote-videos">
     <div class="video-thumb">
       <video id="localView"  muted="muted" autoplay="autoplay" onclick="switchVideo(this)"></video>
       <label ><span class="local-id"></span> (Me)</label>
     </div>
-    <div class="remote-videos"></div>
   </div>
+  <div class="controller-container">
+    <button class="uk-border-rounded uk-button-primary"><i class="fas fa-microphone"></i></button>
+    <button class="uk-border-rounded uk-button-primary"><i class="fas fa-video"></i></button>
+    <button class="uk-border-rounded uk-button-danger" onclick="window.location.href= '/'"><i class="fas fa-phone-slash"></i></button>
 
-  <small class="local-id uk-position-bottom-left uk-display-block"
-         style="color: black;padding: 2px 4px; background-color: rgba(255,255,255,0.5); backdrop-filter: blur(5px); border-radius: 0 5px 0 0"></small>
+  </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js" integrity="sha512-WL6WGKMPBiM9PnHRYIn5YEtq0Z8XP4fkVb4qy7PP4vhmYQErJ/dySyXuFIMDf1eEYCXCrQrMJfkNwKc9gsjTjA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>

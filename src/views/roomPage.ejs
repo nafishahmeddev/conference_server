@@ -125,6 +125,7 @@
       //sending my stream
       local_stream.getTracks().forEach((track) => pc.addTrack(track, local_stream));
       // Let the "negotiationneeded" event trigger offer generation.
+      /*
       let limit = 0;
       pc.onicecandidate = (ev) => {
         if (!ev || !ev.candidate || limit === 1) return;
@@ -136,6 +137,8 @@
 
         limit = 1;
       }
+
+       */
       pc.ontrack = (event) => {
         // Don't set srcObject again if it is already set.
         addRemoteView(id, event.streams, true);

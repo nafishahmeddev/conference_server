@@ -151,6 +151,7 @@
     });
 
     signaling.on("detached", async (id) => {
+      peers[id].close();
       delete peers[id];
       delete users[id];
       deleteContainer(id);
@@ -204,15 +205,15 @@
     }
   }
 
-
   const askName = () =>{
-    let name = prompt("What is your name?");
-    if(name){
-      signaling_query.name = name;
-      init();
-    } else {
-      askName();
-    }
+    UIkit.modal.prompt('Enter your name', '').then(function (name) {
+      if(name){
+        signaling_query.name = name;
+        init();
+      } else {
+        askName();
+      }
+    });
   }
   askName();
 

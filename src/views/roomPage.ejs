@@ -80,11 +80,11 @@
     // handles JSON.stringify/parse
     signaling.emit("join");
     const configuration = {iceServers: [
-        {'urls': 'stun:stun.l.google.com:19302'},
-        {'urls': 'stun:stun1.l.google.com:19302'},
-        {'urls': 'stun:stun2.l.google.com:19302'},
-        {'urls': 'stun:stun3.l.google.com:19302'},
-        {'urls': 'stun:stun4.l.google.com:19302'}
+        {
+          urls: 'turn:34.224.213.192:3478',
+          username: 'xpeed',
+          credential:'xpeed123'
+        },
       ]};
     //adder
     let createPeerAdder = async (id) => {

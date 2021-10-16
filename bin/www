@@ -25,7 +25,11 @@ var server = http.createServer(app);
 /**
  * Socket IO init
  */
-var SocketIO = io(server);
+var SocketIO = io(server,{
+  cors: {
+    origin: '*',
+  }
+});
 /**
  * Listen on provided port, on all network interfaces.
  */

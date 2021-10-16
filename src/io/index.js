@@ -4,8 +4,11 @@ const {checkRoomId}=require("./middllewares");
 const {ERROR_JOINING_ROOM} = require("./../constants/errorCodes");
 const roomClientEvents = require("./events/roomClientEvents");
 const io = (server) =>{
-    const io = new Server(server);
-    io.set('origins', '*:*');
+    const io = new Server(server, {
+        cors: {
+            origin: '*',
+        }
+    });
     //
     debug('Socket server started');
     //conference

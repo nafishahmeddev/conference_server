@@ -66,6 +66,21 @@ module.exports =  (io, socket) =>{
         });
     })
 
+    socket.on("message", event=>{
+        debug(true , "MESSAGE", socket.id,"Broker",room);
+        let res = {
+            from: socket.id,
+            content: event.content,
+            type: event.type
+        }
+        if(event.to) {
+            socket.to(event.to).emit("message", res);
+        } else {
+            socket.broadcast.to(room).emit("message", res);
+        }
+
+    })
+
     socket.on("disconnect", () => {
         debug(false , "DISCONNECT", socket.id, "Everyone", room);
         socket.broadcast.to(room).emit("detached", socket.id);

@@ -1,15 +1,13 @@
-var express = require('express');
-var router = express.Router();
+let express = require('express');
+const path = require("path");
+let router = express.Router();
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
-router.get("/:room_id", function (req, res, next){
-  const room_id = req.params.room_id;
-  res.render('roomPage', {
-    title: "Xpeed Meeting Room",
-    room_id: room_id
+/* GET room page */
+router.get('/:room', function(req, res, next) {
+  res.sendFile(path.resolve(__dirname+'/../public/index.html'), (error)=>{
+    if(error){
+      console.log(error);
+    }
   });
 });
 module.exports = router;
